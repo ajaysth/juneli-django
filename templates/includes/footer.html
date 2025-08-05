@@ -18,4 +18,62 @@
 		</section>
 	</div><!-- //container -->
 </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const input = document.getElementById('search-input');
+    const suggestionBox = document.getElementById('autocomplete-list');
+    let debounceTimeout = null;
+
+    input.addEventListener('input', function() {
+        const query = this.value.trim();
+
+        // Clear any existing debounce timer
+        if (debounceTimeout) {
+            clearTimeout(debounceTimeout);
+        }
+
+        // If input is empty, clear suggestions
+        if (!query) {
+            suggestionBox.innerHTML = '';
+            return;
+        }
+
+        // Debounce: wait 300ms after user stops typing
+        debounceTimeout = setTimeout(() => {
+            fetch(`/store/autocomplete/?q=` + encodeURIComponent(query))
+                .then(response => response.json())
+                .then(data => {
+                    suggestionBox.innerHTML = '';
+
+                    if (data.length === 0) {
+                        return; // no suggestions
+                    }
+
+                    data.forEach(item => {
+                        const div = document.createElement('div');
+                        div.textContent = item;
+                        div.style.padding = '8px';
+                        div.style.cursor = 'pointer';
+
+                        // On click, fill input and clear suggestions
+                        div.addEventListener('click', () => {
+                            input.value = item;
+                            suggestionBox.innerHTML = '';
+                        });
+
+                        suggestionBox.appendChild(div);
+                    });
+                });
+        }, 300);
+    });
+
+    // Optional: close suggestions if clicked outside
+    document.addEventListener('click', (e) => {
+        if (e.target !== input) {
+            suggestionBox.innerHTML = '';
+        }
+    });
+});
+</script>
 <!-- ========================= FOOTER END // ========================= -->

@@ -11,10 +11,10 @@ class MyAccountManager(BaseUserManager):
             raise ValueError("Users must have a username")
         
         user = self.model(
-            email=self.normalize_email(email), #Nmake every email lowercase
+            email=self.normalize_email(email), #make every email lowercase
             username=username,
             first_name=first_name,
-            last_name=last_name
+            last_name=last_name,
         )   
         
         user.set_password(password)  # Set the password using the set_password method

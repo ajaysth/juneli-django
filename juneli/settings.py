@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,7 +42,32 @@ INSTALLED_APPS = [
     'accounts',
     'store',
     'carts',
+    
 ]
+
+JAZZMIN_SETTINGS = {
+    "site_title": "My Admin Panel",
+    "site_header": "Juneli Admin",
+    "site_brand": "Juneli",
+    "welcome_sign": "Welcome to Juneli Admin",
+    "copyright": "Juneli",
+    "search_model":  [
+    "accounts.Account","store.Product","carts.Cart",],
+
+    "topmenu_links": [
+        {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"app": "auth"},
+        {"model": "auth.User"},
+    ],
+
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+    },
+
+    "changeform_format": "horizontal_tabs",  # Other options: 'collapsible', 'vertical_tabs'
+    "navigation_expanded": True,
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

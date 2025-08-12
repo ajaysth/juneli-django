@@ -186,30 +186,53 @@ def search(request):
     keyword = request.GET.get('keyword', '').strip()
     
     if keyword:
-        filtered_products = Product.objects.filter(
-            Q(product_name__icontains=keyword) | Q(description__icontains=keyword)
-        )
+        # Simple linear search approach - more efficient for smaller datasets
+        keyword_lower = keyword.lower()
+        matched_products = []
         
-        if filtered_products.exists():
-            combined_texts = [
-                f"{product.product_name} {product.description}" for product in filtered_products
-            ]
-            corpus = combined_texts + [keyword]
-
-            # Use char-level ngrams for partial substring matching
-            vectorizer = TfidfVectorizer(analyzer='char_wb', ngram_range=(3, 5))
-            tfidf_matrix = vectorizer.fit_transform(corpus)
-
-            cosine_sim = cosine_similarity(tfidf_matrix[-1], tfidf_matrix[:-1]).flatten()
-
-            matched_indices = np.where(cosine_sim > 0)[0]
-            ranked_indices = matched_indices[np.argsort(cosine_sim[matched_indices])[::-1]]
-
-            matched_products = [filtered_products[int(i)] for i in ranked_indices]
-        else:
-            matched_products = Product.objects.none()
+        # Get all available products
+        all_products = Product.objects.filter(is_available=True)
+        
+        # Linear search with scoring
+        for product in all_products:
+            score = 0
+            product_name_lower = product.product_name.lower()
+            description_lower = product.description.lower() if product.description else ""
+            
+            # Exact match in product name (highest score)
+            if keyword_lower == product_name_lower:
+                score = 100
+            # Starts with keyword
+            elif product_name_lower.startswith(keyword_lower):
+                score = 90
+            # Contains keyword in product name
+            elif keyword_lower in product_name_lower:
+                score = 80
+            # Contains keyword in description
+            elif keyword_lower in description_lower:
+                score = 70
+            # Partial match (word by word)
+            else:
+                keyword_words = keyword_lower.split()
+                name_words = product_name_lower.split()
+                desc_words = description_lower.split()
+                
+                name_matches = sum(1 for kw in keyword_words if any(kw in nw for nw in name_words))
+                desc_matches = sum(1 for kw in keyword_words if any(kw in dw for dw in desc_words))
+                
+                if name_matches > 0 or desc_matches > 0:
+                    score = 50 + (name_matches * 10) + (desc_matches * 5)
+            
+            if score > 0:
+                # Add score as a temporary attribute for sorting
+                product.search_score = score
+                matched_products.append(product)
+        
+        # Sort by score descending
+        matched_products.sort(key=lambda p: p.search_score, reverse=True)
+        
     else:
-        matched_products = Product.objects.all()
+        matched_products = Product.objects.filter(is_available=True)
 
     context = {
         'products': matched_products,

@@ -3,6 +3,9 @@ from accounts.models import Account
 from category.models import Category
 from django.urls import reverse
 from django.db.models import Avg, Count
+from django.utils import timezone
+
+
 
 # Create your models here.
 
@@ -93,3 +96,13 @@ class ProductGallery(models.Model):
         verbose_name = 'productgallery'
         verbose_name_plural = 'product gallery'
     
+
+
+class EngagementEvent(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    user = models.ForeignKey('accounts.Account', on_delete=models.SET_NULL, null=True, blank=True)
+    event_type = models.CharField(max_length=20, default='view')  # e.g., 'view', 'click'
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.product.product_name} - {self.event_type} at {self.timestamp}"

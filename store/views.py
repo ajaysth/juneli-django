@@ -2,7 +2,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 from category.models import Category
 from orders.models import OrderProduct
 from store.forms import ReviewForm
-from .models import Product, ProductGallery, ReviewRating
+from .models import EngagementEvent, Product, ProductGallery, ReviewRating
 from carts.models import CartItem
 from carts.views import _cart_id
 from django.http import HttpResponse
@@ -22,32 +22,124 @@ import numpy as np
 
 
 
+
+
 # Create your views here.
+# def store(request, category_slug=None):
+#     categories = None
+#     products = None
+    
+#     # Get min and max price from GET parameters
+#     min_price = request.GET.get('min_price')
+#     max_price = request.GET.get('max_price')
+    
+#     if category_slug is not None:
+#         categories = get_object_or_404(Category, slug=category_slug)
+#         products = Product.objects.filter(category=categories, is_available=True)
+#         paginator = Paginator(products, 2)  # Show 6 products per page
+#         page = request.GET.get('page')
+#         paged_products = paginator.get_page(page)
+        
+#         product_count = products.count()
+#     else:
+#         products = Product.objects.all().filter(is_available=True).order_by('id')
+#         paginator = Paginator(products, 6)  # Show 6 products per page
+#         page = request.GET.get('page')
+#         paged_products = paginator.get_page(page)
+#         product_count = products.count()    
+        
+#     context={
+#         'products': paged_products,
+#         'product_count': product_count,
+#         # 'paged_products': paged_products,
+#     }
+#     return render(request, 'store/store.html', context)
+
+
 def store(request, category_slug=None):
     categories = None
     products = None
-    
+
+    # Get min and max price from GET parameters
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+
     if category_slug is not None:
         categories = get_object_or_404(Category, slug=category_slug)
         products = Product.objects.filter(category=categories, is_available=True)
-        paginator = Paginator(products, 2)  # Show 6 products per page
-        page = request.GET.get('page')
-        paged_products = paginator.get_page(page)
-        
-        product_count = products.count()
     else:
-        products = Product.objects.all().filter(is_available=True).order_by('id')
-        paginator = Paginator(products, 6)  # Show 6 products per page
-        page = request.GET.get('page')
-        paged_products = paginator.get_page(page)
-        product_count = products.count()    
-        
-    context={
+        products = Product.objects.filter(is_available=True).order_by('id')
+
+    try:
+        if min_price is not None and min_price != '':
+            min_price = int(min_price)
+            products = products.filter(price__gte=min_price)
+        if max_price is not None and max_price != '':
+            max_price = int(max_price)
+            products = products.filter(price__lte=max_price)
+    except ValueError:
+        pass  # Ignore invalid input
+    
+    
+    
+    # Get sort option from GET parameters
+    sort = request.GET.get('sort')
+    products = list(products)
+    n = len(products)
+
+    # Bubble sort implementation 
+    products = list(products)
+    n = len(products)
+    
+    if sort == 'name_asc':
+        for i in range(n):
+            for j in range(0, n-i-1):
+                if products[j].product_name.strip().lower() > products[j+1].product_name.strip().lower():
+                    products[j], products[j+1] = products[j+1], products[j]
+    elif sort == 'name_desc':
+        for i in range(n):
+            for j in range(0, n-i-1):
+                if products[j].product_name.strip().lower() < products[j+1].product_name.strip().lower():
+                    products[j], products[j+1] = products[j+1], products[j]
+    elif sort == 'price_asc':
+        for i in range(n):
+            for j in range(0, n-i-1):
+                if products[j].price > products[j+1].price:
+                    products[j], products[j+1] = products[j+1], products[j]
+    elif sort == 'price_desc':
+        for i in range(n):
+            for j in range(0, n-i-1):
+                if products[j].price < products[j+1].price:
+                    products[j], products[j+1] = products[j+1], products[j]
+    elif sort == 'date_new':
+        for i in range(n):
+            for j in range(0, n-i-1):
+                if products[j].created_date < products[j+1].created_date:
+                    products[j], products[j+1] = products[j+1], products[j]
+    elif sort == 'date_old':
+        for i in range(n):
+            for j in range(0, n-i-1):
+                if products[j].created_date > products[j+1].created_date:
+                    products[j], products[j+1] = products[j+1], products[j]
+                    
+
+
+    paginator = Paginator(products, 6)  # Show 6 products per page
+    page = request.GET.get('page')
+    paged_products = paginator.get_page(page)
+    # product_count = products.count()
+    product_count = len(products) 
+
+    context = {
         'products': paged_products,
         'product_count': product_count,
-        # 'paged_products': paged_products,
+        'min_price': min_price,
+        'max_price': max_price,
     }
     return render(request, 'store/store.html', context)
+
+
+
 
 def product_detail(request, category_slug, product_slug):
     try:
@@ -56,6 +148,13 @@ def product_detail(request, category_slug, product_slug):
         
     except Exception as e:
         raise e   
+    
+    # Log engagement event (product view)
+    EngagementEvent.objects.create(
+        product=single_product,
+        user=request.user if request.user.is_authenticated else None,
+        event_type='view'
+    )
     
     if request.user.is_authenticated:
         try:
@@ -155,3 +254,7 @@ def submit_review(request, product_id):
                 data.save()
                 messages.success(request, 'Thank you! Your review has been submitted.')
                 return redirect(url)
+            
+            
+            
+

@@ -31,7 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    # 'jazzmin',
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -174,5 +174,5 @@ MESSAGE_TAGS = {
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'ajayshrestha130@gmail.com'
-EMAIL_HOST_PASSWORD = 'wwop jqqh ikvl dhtb'  
+EMAIL_HOST_PASSWORD = 'uhxk phud cofm utrp'  
 EMAIL_USE_TLS = True

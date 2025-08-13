@@ -1,0 +1,10 @@
+2025-08-13T13:46:00.681Z - Extension - INFO - Logging system initialized with file: c:\Users\Hp\Desktop\Juneli\.codebase2docs\output\log.txt
+2025-08-13T13:46:00.684Z - ApiKeyUtils - INFO - Production mode: using injected API key
+2025-08-13T13:46:01.464Z - ApiKeyUtils - INFO - Default API key stored in secret storage
+2025-08-13T13:46:01.466Z - Extension - INFO - Auth and analytics disabled - skipping auth and analytics initialization
+2025-08-13T13:46:01.473Z - CheckNodeVersionService - ERROR - Error getting node version with shell environment: spawn /bin/bash ENOENT
+2025-08-13T13:46:01.476Z - Extension - WARN - Node.js version check failed - some features may not work properly
+2025-08-13T13:46:01.513Z - ProgressStateManager - INFO - ProgressStateManager initialized
+2025-08-13T13:46:01.515Z - ProgressMessageManager - INFO - ProgressMessageManager initialized
+2025-08-13T13:46:01.517Z - ProgressService - INFO - ProgressService initialized with component managers
+2025-08-13T13:46:01.521Z - PromptManager - INFO - All prompt templates loaded successfully

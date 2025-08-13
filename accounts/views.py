@@ -133,7 +133,7 @@ def login(request):
                     nextPage = params['next']
                     return redirect(nextPage)
             except:
-                return redirect('dashboard')
+                return redirect('home')
         else:
             messages.error(request, 'Invalid credentials. Please try again.')
             return redirect('login')

@@ -48,11 +48,15 @@ class VariationManager(models.Manager):
 
     def sizes(self):
         return super(VariationManager, self).filter(variation_category='size', is_active=True)
+    
+    def variants(self):
+        return super(VariationManager, self).filter(variation_category='variant', is_active=True)
 
 
 variation_category_choice = (
     ('color', 'color'),
     ('size', 'size'),
+    ('variant', 'variant')
     )   
     
 class Variation(models.Model):

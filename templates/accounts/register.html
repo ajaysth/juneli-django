@@ -40,6 +40,9 @@
 					<div class="form-group col-md-6">
 						<label>Create password</label>
 					    {{ form.password }}
+					    <small class="form-text text-muted">
+					        Password must be at least 8 characters with uppercase, lowercase, numbers, and special characters.
+					    </small>
 					</div> <!-- form-group end.// --> 
 					<div class="form-group col-md-6">
 						<label>Repeat password</label>
@@ -53,6 +56,50 @@
                 {{ form.non_field_errors }}   
 			        
 			</form>
+			
+			<script>
+			document.querySelector('form').addEventListener('submit', function(e) {
+				const password = document.querySelector('[name="password"]').value;
+				const confirmPassword = document.querySelector('[name="confirm_password"]').value;
+				
+				if (password !== confirmPassword) {
+					alert('Passwords do not match!');
+					e.preventDefault();
+					return false;
+				}
+				
+				// Basic client-side validation
+				if (password.length < 8) {
+					alert('Password must be at least 8 characters long!');
+					e.preventDefault();
+					return false;
+				}
+				
+				if (!/[A-Z]/.test(password)) {
+					alert('Password must contain at least one uppercase letter!');
+					e.preventDefault();
+					return false;
+				}
+				
+				if (!/[a-z]/.test(password)) {
+					alert('Password must contain at least one lowercase letter!');
+					e.preventDefault();
+					return false;
+				}
+				
+				if (!/[0-9]/.test(password)) {
+					alert('Password must contain at least one digit!');
+					e.preventDefault();
+					return false;
+				}
+				
+				if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+					alert('Password must contain at least one special character!');
+					e.preventDefault();
+					return false;
+				}
+			});
+			</script>
 		</article><!-- card-body.// -->
     </div> <!-- card .// -->
     <p class="text-center mt-4">Have an account? <a href="{% url 'login' %}">Log In</a></p>

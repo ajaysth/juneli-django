@@ -32,6 +32,29 @@ class RegistrationForm(forms.ModelForm):
         if password != confirm_password:
             raise forms.ValidationError("Passwords do not match")
         
+        # Password validation rules
+        if password:
+            # Check minimum length
+            if len(password) < 8:
+                raise forms.ValidationError("Password must be at least 8 characters long")
+            
+            # Check for uppercase letters
+            if not any(char.isupper() for char in password):
+                raise forms.ValidationError("Password must contain at least one uppercase letter")
+            
+            # Check for lowercase letters
+            if not any(char.islower() for char in password):
+                raise forms.ValidationError("Password must contain at least one lowercase letter")
+            
+            # Check for digits
+            if not any(char.isdigit() for char in password):
+                raise forms.ValidationError("Password must contain at least one digit")
+            
+            # Check for special characters
+            special_characters = "!@#$%^&*()_+-=[]{}|;:,.<>?"
+            if not any(char in special_characters for char in password):
+                raise forms.ValidationError("Password must contain at least one special character (!@#$%^&*()_+-=[]{}|;:,.<>?)")
+        
 class UserForm(forms.ModelForm):
     class Meta:
         model = Account

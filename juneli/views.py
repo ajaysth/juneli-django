@@ -1,5 +1,6 @@
 # from django.http import render
 from django.shortcuts import render
+from django.db.models import Avg
 from store.models import EngagementEvent, Product, ReviewRating
 from store.utils import time_decay_weighted_score
 
@@ -16,7 +17,7 @@ from store.utils import time_decay_weighted_score
 
 
 def home(request):
-    products = Product.objects.filter(is_available=True).order_by('created_date')
+    products = Product.objects.filter(is_available=True).annotate(average_rating=Avg('reviewrating__rating')).order_by('-average_rating')[:8]
 
     # Trending products calculation
     trending = []
